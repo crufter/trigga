@@ -5,6 +5,7 @@ import(
 	"github.com/opesun/trigga/binhelper"
 	"sync"
 	"fmt"
+	"encoding/json"
 )
 
 type Rooms struct {
@@ -71,6 +72,14 @@ func (c *Rooms) Publish(roomName string, msg []byte, except *cn.Connection) {
 	defer c.mut.Unlock()
 	all := 0
 	errors := 0
+	m := map[string]interface{}{
+		"r": roomName,
+		"m": string(msg),		// I am so unhappy about this.
+	}
+	smsg, err := json.Marshal(m)
+	if err != nil {
+		panic(err)
+	}
 	for i := range c.roomToConns[roomName] {
 		if i == except.Id {
 			continue
@@ -81,8 +90,9 @@ func (c *Rooms) Publish(roomName string, msg []byte, except *cn.Connection) {
 			fmt.Println("Bookkeeping is buggy.")
 			continue
 		}
-		err := binhelper.WriteMsg(conn.Conn, msg)
+		err := binhelper.WriteMsg(conn.Conn, smsg)
 		if err != nil {
+			fmt.Println(err)
 			errors++
 		}
 	}
