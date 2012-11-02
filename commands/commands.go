@@ -28,11 +28,7 @@ func readAndDecode(c net.Conn) (map[string]interface{}, error) {
 
 func Process(r *ro.Rooms, c *cn.Connection) {
 	defer func() {
-		re := recover()
-		if re != nil {
-			//fmt.Println("Panic err: ", re)
-			//fmt.Println(string(debug.Stack()))
-		}
+		recover()
 		r.Remove(c)
 	}()
 	for {
@@ -42,7 +38,7 @@ func Process(r *ro.Rooms, c *cn.Connection) {
 		}
 		switch m["c"] {
 		case "p":
-			r.Publish(m["r"].(string), []byte(m["m"].(string)), c)
+			r.Publish(m["r"].(string), []byte(m["m"].(string)))
 		case "s":
 			r.Subscribe(m["r"].(string), c)
 		case "u":

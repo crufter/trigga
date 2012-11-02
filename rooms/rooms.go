@@ -67,7 +67,7 @@ func (c *Rooms) Remove(conn *cn.Connection) {
 	conn.Conn.Close()
 }
 
-func (c *Rooms) Publish(roomName string, msg []byte, except *cn.Connection) {
+func (c *Rooms) Publish(roomName string, msg []byte) {
 	c.mut.Lock()
 	defer c.mut.Unlock()
 	all := 0
@@ -81,9 +81,6 @@ func (c *Rooms) Publish(roomName string, msg []byte, except *cn.Connection) {
 		panic(err)
 	}
 	for i := range c.roomToConns[roomName] {
-		if i == except.Id {
-			continue
-		}
 		all++
 		conn, exists := c.conns[i]
 		if !exists {
